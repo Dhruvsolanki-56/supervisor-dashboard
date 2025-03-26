@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import DashboardCard from './DashboardCard';
 
-interface MapLocation {
+export interface MapLocation {
   id: number;
   name: string;
   severity: 'severe' | 'moderate' | 'mild' | 'healthy';
@@ -18,7 +18,7 @@ interface NutritionMapProps {
 const NutritionMap: React.FC<NutritionMapProps> = ({ locations }) => {
   const [activeLocation, setActiveLocation] = useState<MapLocation | null>(null);
   
-  const getSeverityColor = (severity: string) => {
+  const getSeverityColor = (severity: 'severe' | 'moderate' | 'mild' | 'healthy') => {
     switch (severity) {
       case 'severe':
         return 'bg-anganwadi-severe';
