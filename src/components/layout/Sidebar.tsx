@@ -24,7 +24,7 @@ interface NavItem {
 const Sidebar: React.FC = () => {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
