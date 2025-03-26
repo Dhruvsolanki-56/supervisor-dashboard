@@ -10,7 +10,6 @@ import Centers from "./pages/Centers";
 import Children from "./pages/Children";
 import Nutrition from "./pages/Nutrition";
 import Inventory from "./pages/Inventory";
-import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,7 +28,6 @@ const App = () => {
               <Route path="/children" element={<Children />} />
               <Route path="/nutrition" element={<Nutrition />} />
               <Route path="/inventory" element={<Inventory />} />
-              <Route path="/analytics" element={<Analytics />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -1,91 +1,101 @@
 
 import React, { useState } from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Link, useLocation } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 import { 
-  LayoutDashboard, 
+  BarChart3, 
+  Home, 
   Users, 
-  HeartPulse, 
+  MapPin, 
   Package, 
-  ChevronRight,
-  ChevronLeft,
-  BarChart3,
-  Building,
-} from "lucide-react";
-
-interface NavItem {
-  label: string;
-  icon: React.ComponentType<any>;
-  href: string;
-}
+  ChevronLeft, 
+  ChevronRight 
+} from 'lucide-react';
 
 const Sidebar: React.FC = () => {
+  const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const isMobile = useMobile();
-
-  const toggleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
-  };
-
-  const closeSidebar = () => {
-    if (isMobile) {
-      setIsCollapsed(true);
-    }
-  };
-
-  const navItems = [
-  { label: 'Dashboard', icon: LayoutDashboard, href: '/' },
-  { label: 'Centers', icon: Building, href: '/centers' },
-  { label: 'Children', icon: Users, href: '/children' },
-  { label: 'Nutrition', icon: HeartPulse, href: '/nutrition' },
-  { label: 'Inventory', icon: Package, href: '/inventory' },
-  { label: 'Analytics', icon: BarChart3, href: '/analytics' },
-];
+  
+  const navigation = [
+    { name: 'Dashboard', href: '/', icon: Home },
+    { name: 'Centers', href: '/centers', icon: MapPin },
+    { name: 'Children', href: '/children', icon: Users },
+    { name: 'Nutrition', href: '/nutrition', icon: BarChart3 },
+    { name: 'Inventory', href: '/inventory', icon: Package },
+  ];
 
   return (
-    <div
+    <div 
       className={cn(
-        "flex flex-col h-screen bg-secondary border-r border-r-border",
-        isCollapsed ? "w-16" : "w-60",
-        isMobile ? "fixed left-0 top-0 z-50 transition-transform duration-300 ease-in-out" : "",
-        isMobile && isCollapsed ? "-translate-x-full" : ""
+        "relative h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300",
+        collapsed ? "w-[70px]" : "w-[250px]"
       )}
     >
-      <div className="flex-1 p-4">
-        <div className="mb-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center text-lg font-semibold">
-            {!isCollapsed && <span className="mr-2">Anganwadi App</span>}
-            {/* You can add a logo here */}
-          </Link>
-          {isMobile && (
-            <Button variant="ghost" size="icon" onClick={toggleCollapse}>
-              {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
-            </Button>
-          )}
-        </div>
-        <nav className="space-y-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.label}
-              to={item.href}
-              onClick={closeSidebar}
-              className={cn(
-                "flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground transition-colors",
-                location.pathname === item.href ? "bg-accent text-accent-foreground" : "text-muted-foreground"
-              )}
-            >
-              <item.icon className="mr-2 h-4 w-4" />
-              {!isCollapsed && <span>{item.label}</span>}
-            </Link>
-          ))}
+      <div className="p-4 flex items-center justify-between border-b border-sidebar-border">
+        {!collapsed && (
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-bold">A</span>
+            </div>
+            <h1 className="text-lg font-medium">Anganwadi</h1>
+          </div>
+        )}
+        {collapsed && (
+          <div className="w-full flex justify-center">
+            <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-bold">A</span>
+            </div>
+          </div>
+        )}
+        {!collapsed && (
+          <button 
+            onClick={() => setCollapsed(true)}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ChevronLeft size={18} />
+          </button>
+        )}
+      </div>
+      
+      <div className="flex-1 py-6 overflow-y-auto">
+        <nav className="px-2 space-y-1">
+          {navigation.map((item) => {
+            const isActive = location.pathname === item.href || 
+              (item.href !== '/' && location.pathname.startsWith(item.href));
+            
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  "group flex items-center px-2 py-2.5 text-sm font-medium rounded-md transition-all",
+                  isActive 
+                    ? "bg-sidebar-accent text-sidebar-primary" 
+                    : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                )}
+              >
+                <item.icon 
+                  className={cn(
+                    "mr-3 h-5 w-5 transition-colors",
+                    isActive ? "text-sidebar-primary" : "text-muted-foreground group-hover:text-sidebar-primary"
+                  )}
+                  size={20}
+                />
+                {!collapsed && <span>{item.name}</span>}
+              </Link>
+            );
+          })}
         </nav>
       </div>
-      {!isCollapsed && (
-        <div className="p-4">
-          {/* Add user profile or settings link here */}
+      
+      {collapsed && (
+        <div className="p-4 border-t border-sidebar-border">
+          <button 
+            onClick={() => setCollapsed(false)}
+            className="w-full flex justify-center text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ChevronRight size={18} />
+          </button>
         </div>
       )}
     </div>
