@@ -1,10 +1,11 @@
+
 // Import the correct MapLocation type
 import { MapLocation } from '@/components/dashboard/NutritionMap';
 import Layout from "@/components/layout/Layout";
 import PageTitle from "@/components/common/PageTitle";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "@radix-ui/react-icons";
+import { Plus as PlusIcon } from "lucide-react"; // Changed from @radix-ui/react-icons to lucide-react
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
