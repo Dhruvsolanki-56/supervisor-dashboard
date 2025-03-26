@@ -1,13 +1,14 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import PageTitle from '@/components/common/PageTitle';
 import DashboardCard from '@/components/dashboard/DashboardCard';
-import { Package, AlertCircle, Truck, ShoppingBag, Clock, BarChart3 } from 'lucide-react';
+import { Package, AlertCircle, Truck, ShoppingBag, Clock } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Card } from '@/components/ui/card';
 
 // Mock data
 const supplements = [
@@ -124,40 +125,47 @@ const recentDistributions = [
   }
 ];
 
+// Updated pending requests with specific medicine details
 const pendingRequests = [
   {
     id: 1,
     center: 'Anganwadi Center 5',
-    items: 'Iron Tablets, Micronutrient Sachets',
-    quantity: 200,
     requestDate: 'Aug 16, 2023',
     urgency: 'high',
-    status: 'pending'
+    status: 'pending',
+    medicines: [
+      { name: 'Iron Tablets', quantity: 120, unit: 'Bottles' },
+      { name: 'Micronutrient Sachets', quantity: 80, unit: 'Boxes' }
+    ]
   },
   {
     id: 2,
     center: 'Anganwadi Center 2',
-    items: 'Protein Supplement, Calcium Tablets',
-    quantity: 150,
     requestDate: 'Aug 15, 2023',
     urgency: 'medium',
-    status: 'pending'
+    status: 'pending',
+    medicines: [
+      { name: 'Protein Supplement', quantity: 85, unit: 'Packets' },
+      { name: 'Calcium Tablets', quantity: 65, unit: 'Bottles' }
+    ]
   },
   {
     id: 3,
     center: 'Anganwadi Center 7',
-    items: 'Vitamin A Syrup',
-    quantity: 100,
     requestDate: 'Aug 14, 2023',
     urgency: 'low',
-    status: 'pending'
+    status: 'pending',
+    medicines: [
+      { name: 'Vitamin A Syrup', quantity: 100, unit: 'Bottles' }
+    ]
   }
 ];
 
 const Inventory = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
-
+  const [selectedRequest, setSelectedRequest] = useState<(typeof pendingRequests)[0] | null>(null);
+  
   const getStockColor = (status: string) => {
     switch (status) {
       case 'critical':
@@ -227,6 +235,11 @@ const Inventory = () => {
       description: `Request #${id} has been ${action === 'approve' ? 'approved' : 'rejected'}.`,
       variant: action === 'approve' ? 'default' : 'destructive',
     });
+    setSelectedRequest(null);
+  };
+
+  const handleRequestSelect = (request: (typeof pendingRequests)[0]) => {
+    setSelectedRequest(request);
   };
 
   return (
@@ -244,7 +257,6 @@ const Inventory = () => {
       <Tabs defaultValue="overview" className="w-full" onValueChange={setActiveTab}>
         <TabsList className="mb-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="tracking">Stock Tracking</TabsTrigger>
           <TabsTrigger value="requests">Pending Requests</TabsTrigger>
         </TabsList>
         
@@ -356,217 +368,41 @@ const Inventory = () => {
           </div>
         </TabsContent>
         
-        <TabsContent value="tracking">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            <DashboardCard title="Critical Stock Items" subtitle="Urgent attention required">
-              <div className="space-y-4 mt-2">
-                {supplements
-                  .filter(item => item.status === 'critical')
-                  .map(item => (
-                    <div key={item.id} className="border border-red-200 rounded-md p-4 bg-red-50">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-medium text-gray-900">{item.name}</h4>
-                          <p className="text-xs text-gray-600 mt-1">Location: {item.center}</p>
-                        </div>
-                        {getStatusBadge(item.status)}
-                      </div>
-                      
-                      <div className="mt-3">
-                        <div className="flex justify-between text-xs mb-1">
-                          <span>Current: {item.stockPercentage}%</span>
-                          <span className="text-red-600">Required: {item.required} units</span>
-                        </div>
-                        <div className={`${getStockBgColor(item.status)} h-2 rounded-full`}>
-                          <div 
-                            className={`${getStockColor(item.status)} h-2 rounded-full`} 
-                            style={{ width: `${item.stockPercentage}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex justify-between mt-3 text-xs">
-                        <div className="flex items-center">
-                          <Clock size={12} className="text-gray-500 mr-1" />
-                          <span>Depletes: {item.projectedDepleteDate}</span>
-                        </div>
-                        <div>
-                          <span>Last updated: {item.lastUpdated}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </DashboardCard>
-            
-            <DashboardCard title="Low Stock Items" subtitle="Attention needed soon">
-              <div className="space-y-4 mt-2">
-                {supplements
-                  .filter(item => item.status === 'low')
-                  .map(item => (
-                    <div key={item.id} className="border border-yellow-200 rounded-md p-4 bg-yellow-50">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-medium text-gray-900">{item.name}</h4>
-                          <p className="text-xs text-gray-600 mt-1">Location: {item.center}</p>
-                        </div>
-                        {getStatusBadge(item.status)}
-                      </div>
-                      
-                      <div className="mt-3">
-                        <div className="flex justify-between text-xs mb-1">
-                          <span>Current: {item.stockPercentage}%</span>
-                          <span className="text-yellow-700">Required: {item.required} units</span>
-                        </div>
-                        <div className={`${getStockBgColor(item.status)} h-2 rounded-full`}>
-                          <div 
-                            className={`${getStockColor(item.status)} h-2 rounded-full`} 
-                            style={{ width: `${item.stockPercentage}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex justify-between mt-3 text-xs">
-                        <div className="flex items-center">
-                          <Clock size={12} className="text-gray-500 mr-1" />
-                          <span>Depletes: {item.projectedDepleteDate}</span>
-                        </div>
-                        <div>
-                          <span>Last updated: {item.lastUpdated}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </DashboardCard>
-            
-            <DashboardCard title="Stock Level Summary" subtitle="Overall inventory status">
-              <div className="space-y-6 mt-4">
-                <div>
-                  <h4 className="text-sm font-medium mb-2">Stock Level Distribution</h4>
-                  <div className="flex items-center mb-2">
-                    <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                    <span className="text-xs mr-1">Critical:</span>
-                    <span className="text-xs font-semibold">{supplements.filter(item => item.status === 'critical').length} items</span>
-                  </div>
-                  <div className="flex items-center mb-2">
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
-                    <span className="text-xs mr-1">Low:</span>
-                    <span className="text-xs font-semibold">{supplements.filter(item => item.status === 'low').length} items</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                    <span className="text-xs mr-1">Normal:</span>
-                    <span className="text-xs font-semibold">{supplements.filter(item => item.status === 'normal').length} items</span>
-                  </div>
-                </div>
-                
-                <div>
-                  <h4 className="text-sm font-medium mb-2">Projected Depletion Timeline</h4>
-                  <div className="border rounded-md p-3 bg-muted/50">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs text-muted-foreground">This Month</span>
-                      <span className="text-xs font-medium">{supplements.filter(item => new Date(item.projectedDepleteDate) < new Date('2023-09-30')).length} items</span>
-                    </div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs text-muted-foreground">Next Month</span>
-                      <span className="text-xs font-medium">{supplements.filter(item => 
-                        new Date(item.projectedDepleteDate) >= new Date('2023-09-30') && 
-                        new Date(item.projectedDepleteDate) < new Date('2023-10-31')
-                      ).length} items</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Later</span>
-                      <span className="text-xs font-medium">{supplements.filter(item => new Date(item.projectedDepleteDate) >= new Date('2023-10-31')).length} items</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="pt-2">
-                  <Button variant="outline" className="w-full text-xs flex items-center justify-center">
-                    <BarChart3 size={14} className="mr-1" />
-                    View Detailed Analytics
-                  </Button>
-                </div>
-              </div>
-            </DashboardCard>
-          </div>
-          
-          <DashboardCard title="All Supplements Inventory" subtitle="Complete stock tracking">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="text-muted-foreground text-left border-b">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Supplement</th>
-                    <th className="px-4 py-3 font-medium">Location</th>
-                    <th className="px-4 py-3 font-medium">Stock Level</th>
-                    <th className="px-4 py-3 font-medium">Required</th>
-                    <th className="px-4 py-3 font-medium">Depletes On</th>
-                    <th className="px-4 py-3 font-medium">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {supplements.map((item) => (
-                    <tr key={item.id} className="hover:bg-muted/50 transition-colors">
-                      <td className="px-4 py-3 font-medium">{item.name}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{item.center}</td>
-                      <td className="px-4 py-3">
-                        <div className="w-32">
-                          <div className="flex justify-between text-xs mb-1">
-                            <span>{item.remaining}</span>
-                            <span>{item.stockPercentage}%</span>
-                          </div>
-                          <div className={`${getStockBgColor(item.status)} h-1.5 rounded-full w-full`}>
-                            <div 
-                              className={`${getStockColor(item.status)} h-1.5 rounded-full`} 
-                              style={{ width: `${item.stockPercentage}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-muted-foreground">{item.required}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{item.projectedDepleteDate}</td>
-                      <td className="px-4 py-3">{getStatusBadge(item.status)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </DashboardCard>
-        </TabsContent>
-        
         <TabsContent value="requests">
           <div className="grid grid-cols-1 gap-6 mb-6">
             <DashboardCard title="Pending Supplement Requests" subtitle="Awaiting review and approval">
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="text-muted-foreground text-left border-b">
-                    <tr>
-                      <th className="px-4 py-3 font-medium">Request ID</th>
-                      <th className="px-4 py-3 font-medium">Center</th>
-                      <th className="px-4 py-3 font-medium">Items</th>
-                      <th className="px-4 py-3 font-medium">Quantity</th>
-                      <th className="px-4 py-3 font-medium">Date</th>
-                      <th className="px-4 py-3 font-medium">Urgency</th>
-                      <th className="px-4 py-3 font-medium">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Request ID</TableHead>
+                      <TableHead>Center</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Urgency</TableHead>
+                      <TableHead>Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {pendingRequests.map((item) => (
-                      <tr key={item.id} className="hover:bg-muted/50 transition-colors">
-                        <td className="px-4 py-3 font-medium">#{item.id}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{item.center}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{item.items}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{item.quantity}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{item.requestDate}</td>
-                        <td className="px-4 py-3">{getUrgencyBadge(item.urgency)}</td>
-                        <td className="px-4 py-3">
+                      <TableRow 
+                        key={item.id} 
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => handleRequestSelect(item)}
+                      >
+                        <TableCell className="font-medium">#{item.id}</TableCell>
+                        <TableCell>{item.center}</TableCell>
+                        <TableCell>{item.requestDate}</TableCell>
+                        <TableCell>{getUrgencyBadge(item.urgency)}</TableCell>
+                        <TableCell>
                           <div className="flex space-x-2">
                             <Button 
                               variant="ghost" 
                               size="sm" 
                               className="h-8 bg-green-100 text-green-700 hover:bg-green-200"
-                              onClick={() => handleRequestAction(item.id, 'approve')}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRequestAction(item.id, 'approve');
+                              }}
                             >
                               Approve
                             </Button>
@@ -574,79 +410,87 @@ const Inventory = () => {
                               variant="ghost" 
                               size="sm" 
                               className="h-8 bg-red-100 text-red-700 hover:bg-red-200"
-                              onClick={() => handleRequestAction(item.id, 'reject')}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRequestAction(item.id, 'reject');
+                              }}
                             >
                               Reject
                             </Button>
                           </div>
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            </DashboardCard>
-            
-            <DashboardCard title="Request Review Process" subtitle="Guidelines for supplement request approval">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-                <div className="border rounded-md p-4">
-                  <h3 className="font-medium text-sm mb-2">Review Criteria</h3>
-                  <ul className="text-xs space-y-2 text-muted-foreground">
-                    <li className="flex items-start">
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1 mr-2"></span>
-                      <span>Current inventory levels at the center</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1 mr-2"></span>
-                      <span>Historical consumption patterns</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1 mr-2"></span>
-                      <span>Number of children served</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1 mr-2"></span>
-                      <span>Nutritional risk assessment</span>
-                    </li>
-                  </ul>
-                </div>
-                
-                <div className="border rounded-md p-4">
-                  <h3 className="font-medium text-sm mb-2">Urgency Levels</h3>
-                  <div className="space-y-2 text-xs">
-                    <div className="flex items-center">
-                      <span className="inline-block w-2 h-2 rounded-full bg-red-500 mr-2"></span>
-                      <span className="font-medium">High:</span>
-                      <span className="text-muted-foreground ml-1">Critical stock, immediate action</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="inline-block w-2 h-2 rounded-full bg-yellow-500 mr-2"></span>
-                      <span className="font-medium">Medium:</span>
-                      <span className="text-muted-foreground ml-1">Low stock, action needed soon</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="inline-block w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
-                      <span className="font-medium">Low:</span>
-                      <span className="text-muted-foreground ml-1">Regular replenishment</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="border rounded-md p-4">
-                  <h3 className="font-medium text-sm mb-2">Approval Process</h3>
-                  <ol className="text-xs space-y-2 text-muted-foreground list-decimal ml-4">
-                    <li>Review request details</li>
-                    <li>Check current inventory levels</li>
-                    <li>Verify against consumption patterns</li>
-                    <li>Approve or reject with comments</li>
-                    <li>Schedule distribution if approved</li>
-                  </ol>
-                </div>
+                  </TableBody>
+                </Table>
               </div>
             </DashboardCard>
           </div>
         </TabsContent>
       </Tabs>
+      
+      {/* Request Details Dialog */}
+      <Dialog open={!!selectedRequest} onOpenChange={(open) => !open && setSelectedRequest(null)}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Request Details - #{selectedRequest?.id}</DialogTitle>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <div className="grid gap-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium">Center</p>
+                  <p className="text-sm text-muted-foreground">{selectedRequest?.center}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Date Requested</p>
+                  <p className="text-sm text-muted-foreground">{selectedRequest?.requestDate}</p>
+                </div>
+              </div>
+              
+              <div>
+                <p className="text-sm font-medium mb-2">Urgency</p>
+                {selectedRequest && getUrgencyBadge(selectedRequest.urgency)}
+              </div>
+              
+              <Card className="p-4">
+                <h3 className="text-sm font-medium mb-3">Requested Medicines</h3>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Medicine</TableHead>
+                      <TableHead>Quantity</TableHead>
+                      <TableHead>Unit</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {selectedRequest?.medicines.map((medicine, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">{medicine.name}</TableCell>
+                        <TableCell>{medicine.quantity}</TableCell>
+                        <TableCell>{medicine.unit}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSelectedRequest(null)}>
+              Cancel
+            </Button>
+            <Button 
+              className="bg-green-600 hover:bg-green-700 text-white"
+              onClick={() => selectedRequest && handleRequestAction(selectedRequest.id, 'approve')}
+            >
+              Approve Request
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };
