@@ -93,11 +93,6 @@ const Children = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        
-        <button className="px-4 py-2 border rounded-md flex items-center text-sm hover:bg-muted transition-colors">
-          <Filter size={16} className="mr-2 text-muted-foreground" />
-          Filter
-        </button>
       </div>
       
       <ChildrenTable 

@@ -20,7 +20,6 @@ const Sidebar: React.FC = () => {
     { name: 'Dashboard', href: '/', icon: Home },
     { name: 'Centers', href: '/centers', icon: MapPin },
     { name: 'Children', href: '/children', icon: Users },
-    { name: 'Nutrition', href: '/nutrition', icon: BarChart3 },
     { name: 'Inventory', href: '/inventory', icon: Package },
   ];
 

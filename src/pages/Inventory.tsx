@@ -131,7 +131,6 @@ const pendingRequests = [
     id: 1,
     center: 'Anganwadi Center 5',
     requestDate: 'Aug 16, 2023',
-    urgency: 'high',
     status: 'pending',
     medicines: [
       { name: 'Iron Tablets', quantity: 120, unit: 'Bottles' },
@@ -142,7 +141,6 @@ const pendingRequests = [
     id: 2,
     center: 'Anganwadi Center 2',
     requestDate: 'Aug 15, 2023',
-    urgency: 'medium',
     status: 'pending',
     medicines: [
       { name: 'Protein Supplement', quantity: 85, unit: 'Packets' },
@@ -153,7 +151,6 @@ const pendingRequests = [
     id: 3,
     center: 'Anganwadi Center 7',
     requestDate: 'Aug 14, 2023',
-    urgency: 'low',
     status: 'pending',
     medicines: [
       { name: 'Vitamin A Syrup', quantity: 100, unit: 'Bottles' }
@@ -378,7 +375,6 @@ const Inventory = () => {
                       <TableHead>Request ID</TableHead>
                       <TableHead>Center</TableHead>
                       <TableHead>Date</TableHead>
-                      <TableHead>Urgency</TableHead>
                       <TableHead>Action</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -392,7 +388,6 @@ const Inventory = () => {
                         <TableCell className="font-medium">#{item.id}</TableCell>
                         <TableCell>{item.center}</TableCell>
                         <TableCell>{item.requestDate}</TableCell>
-                        <TableCell>{getUrgencyBadge(item.urgency)}</TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
                             <Button 

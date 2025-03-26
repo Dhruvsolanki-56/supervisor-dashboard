@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
 interface LoginFormData {
-  username: string;
+  email: string;
   password: string;
 }
 
@@ -14,13 +14,13 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [formData, setFormData] = useState<LoginFormData>({
-    username: '',
+    email: '',
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<LoginFormData>>({
-    username: '',
+    email: '',
     password: ''
   });
 
@@ -28,12 +28,12 @@ const Login: React.FC = () => {
     const newErrors: Partial<LoginFormData> = {};
     let isValid = true;
 
-    // Username validation
-    if (!formData.username) {
-      newErrors.username = 'Username is required';
+    // Email validation
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
       isValid = false;
-    } else if (!/^[a-zA-Z0-9._]{1,50}$/.test(formData.username)) {
-      newErrors.username = 'Username can only contain letters, numbers, dots, and underscores';
+    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.email)) {
+      newErrors.email = 'Invalid email address';
       isValid = false;
     }
 
@@ -41,7 +41,7 @@ const Login: React.FC = () => {
     if (!formData.password) {
       newErrors.password = 'Password is required';
       isValid = false;
-    } else if (formData.password.length < 8) {
+    } else if (formData.password.length < 4) {
       newErrors.password = 'Password must be at least 8 characters long';
       isValid = false;
     }
@@ -56,14 +56,41 @@ const Login: React.FC = () => {
 
     setIsLoading(true);
     try {
-      // TODO: Implement actual authentication logic here
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated API call
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL_DEV}${import.meta.env.VITE_AUTH_LOGIN}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Authentication failed');
+      }
+
+      // Store the token in a secure httpOnly cookie
+      document.cookie = `authToken=${data.token}; path=/; secure; samesite=strict; max-age=86400`;
+      
+      // Store authentication state and token in localStorage
       localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('authToken', data.token);
+      
+      toast({
+        title: 'Success',
+        description: 'Successfully logged in',
+        variant: 'default'
+      });
+
       navigate('/');
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Invalid username or password',
+        description: error instanceof Error ? error.message : 'Invalid email or password',
         variant: 'destructive'
       });
     } finally {
@@ -90,16 +117,16 @@ const Login: React.FC = () => {
               <div className="relative">
                 <User className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                 <Input
-                  type="text"
-                  placeholder="Username"
+                  type="email"
+                  placeholder="Email address"
                   className="pl-10"
-                  value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                  aria-label="Username"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  aria-label="Email"
                 />
               </div>
-              {errors.username && (
-                <p className="text-sm text-destructive mt-1">{errors.username}</p>
+              {errors.email && (
+                <p className="text-sm text-destructive mt-1">{errors.email}</p>
               )}
             </div>
 

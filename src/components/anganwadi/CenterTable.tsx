@@ -1,50 +1,30 @@
-
-import React from 'react';
-import { MapPin, User, Phone, Info, MoreHorizontal } from 'lucide-react';
+import React, { useState } from 'react';
+import { MapPin, User } from 'lucide-react';
+import CenterDetailsModal from './CenterDetailsModal';
 
 export interface Center {
-  id: number;
-  name: string;
-  location: string;
-  supervisor: string;
-  contact: string;
-  status: 'active' | 'inactive' | 'maintenance';
-  performance: 'excellent' | 'good' | 'average' | 'poor';
-  lastVisit: string;
+  center_name: string;
+  state: string;
+  full_name: string;
+  status: string;
+  email?: string;
+  phone_number?: string;
+  village?: string;
+  district?: string;
+  pin_code?: string;
 }
 
 interface CenterTableProps {
   centers: Center[];
-  onViewDetails?: (center: Center) => void;
 }
 
-const CenterTable: React.FC<CenterTableProps> = ({ centers, onViewDetails }) => {
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <span className="bg-anganwadi-healthy/10 text-anganwadi-healthy text-xs px-2 py-1 rounded-full">Active</span>;
-      case 'inactive':
-        return <span className="bg-anganwadi-severe/10 text-anganwadi-severe text-xs px-2 py-1 rounded-full">Inactive</span>;
-      case 'maintenance':
-        return <span className="bg-anganwadi-moderate/10 text-anganwadi-moderate text-xs px-2 py-1 rounded-full">Maintenance</span>;
-      default:
-        return null;
-    }
-  };
-  
-  const getPerformanceBadge = (performance: string) => {
-    switch (performance) {
-      case 'excellent':
-        return <span className="bg-anganwadi-healthy/10 text-anganwadi-healthy text-xs px-2 py-1 rounded-full">Excellent</span>;
-      case 'good':
-        return <span className="bg-anganwadi-healthy/10 text-anganwadi-healthy text-xs px-2 py-1 rounded-full">Good</span>;
-      case 'average':
-        return <span className="bg-anganwadi-mild/10 text-anganwadi-mild text-xs px-2 py-1 rounded-full">Average</span>;
-      case 'poor':
-        return <span className="bg-anganwadi-severe/10 text-anganwadi-severe text-xs px-2 py-1 rounded-full">Poor</span>;
-      default:
-        return null;
-    }
+const CenterTable: React.FC<CenterTableProps> = ({ centers }) => {
+  const [selectedCenter, setSelectedCenter] = useState<Center | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+
+  const handleCenterClick = (center: Center) => {
+    setSelectedCenter(center);
+    setIsDetailsModalOpen(true);
   };
 
   return (
@@ -53,50 +33,45 @@ const CenterTable: React.FC<CenterTableProps> = ({ centers, onViewDetails }) => 
         <table className="w-full text-sm">
           <thead className="bg-muted text-muted-foreground text-left">
             <tr>
-              <th className="px-4 py-3 font-medium">Center</th>
-              <th className="px-4 py-3 font-medium">Location</th>
+              <th className="px-4 py-3 font-medium">Center Name</th>
+              <th className="px-4 py-3 font-medium">State</th>
               <th className="px-4 py-3 font-medium">Supervisor</th>
               <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Performance</th>
-              <th className="px-4 py-3 font-medium">Last Visit</th>
-              <th className="px-4 py-3 font-medium sr-only">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y">
-            {centers.map((center) => (
-              <tr 
-                key={center.id} 
-                className="hover:bg-muted/50 transition-colors"
-              >
-                <td className="px-4 py-3 font-medium">{center.name}</td>
+            {centers.map((center, index) => (
+              <tr key={index} className="hover:bg-muted/50 transition-colors">
+                <td 
+                  className="px-4 py-3 font-medium cursor-pointer hover:text-primary"
+                  onClick={() => handleCenterClick(center)}
+                >
+                  {center.center_name}
+                </td>
                 <td className="px-4 py-3 text-muted-foreground">
                   <div className="flex items-center">
                     <MapPin size={14} className="mr-1 text-muted-foreground" />
-                    {center.location}
+                    {center.state}
                   </div>
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">
                   <div className="flex items-center">
                     <User size={14} className="mr-1 text-muted-foreground" />
-                    {center.supervisor}
+                    {center.full_name}
                   </div>
                 </td>
-                <td className="px-4 py-3">{getStatusBadge(center.status)}</td>
-                <td className="px-4 py-3">{getPerformanceBadge(center.performance)}</td>
-                <td className="px-4 py-3 text-muted-foreground">{center.lastVisit}</td>
-                <td className="px-4 py-3">
-                  <button 
-                    onClick={() => onViewDetails?.(center)}
-                    className="p-1 hover:bg-muted rounded-md transition-colors"
-                  >
-                    <Info size={16} className="text-primary" />
-                  </button>
-                </td>
+                <td className="px-4 py-3">{center.status}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      <CenterDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        centerDetails={selectedCenter}
+      />
     </div>
   );
 };

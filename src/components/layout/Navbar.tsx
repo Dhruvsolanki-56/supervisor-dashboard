@@ -13,9 +13,13 @@ import { Button } from '@/components/ui/button';
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const [showLogoutDialog, setShowLogoutDialog] = React.useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = React.useState(false);
 
   const handleLogout = () => {
-    // Here you would clear any auth state/tokens
+    // Clear authentication state and token
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('authToken');
+    document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     navigate('/login');
   };
 
@@ -41,22 +45,59 @@ const Navbar: React.FC = () => {
             <span className="absolute top-0 right-0 w-2 h-2 bg-anganwadi-severe rounded-full"></span>
           </button>
           
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-              <User size={18} className="text-muted-foreground" />
-            </div>
-            <div className="hidden md:block">
-              <div className="text-sm font-medium">Admin User</div>
-              <div className="text-xs text-muted-foreground">Supervisor</div>
-            </div>
-          </div>
+          <div className="relative">
+            <button
+              onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+              className="flex items-center space-x-2 hover:bg-muted p-2 rounded-lg transition-colors"
+            >
+              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                <img
+                  src="/placeholder.svg"
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = '/placeholder.svg';
+                  }}
+                />
+              </div>
+              <div className="hidden md:block">
+                <div className="text-sm font-medium">Admin User</div>
+                <div className="text-xs text-muted-foreground">Supervisor</div>
+              </div>
+            </button>
 
-          <button
-            onClick={() => setShowLogoutDialog(true)}
-            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
-          >
-            <LogOut size={18} className="text-muted-foreground" />
-          </button>
+            {showProfileDropdown && (
+              <div className="absolute right-0 mt-2 w-64 bg-card rounded-lg shadow-lg border border-border py-2 z-50">
+                <div className="px-4 py-3 border-b border-border">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                      <img
+                        src="/placeholder.svg"
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = '/placeholder.svg';
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <div className="font-medium">Admin User</div>
+                      <div className="text-sm text-muted-foreground">admin@example.com</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="py-1">
+                  <button
+                    onClick={() => setShowLogoutDialog(true)}
+                    className="w-full px-4 py-2 text-sm text-left hover:bg-muted transition-colors flex items-center space-x-2"
+                  >
+                    <LogOut size={16} />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

@@ -8,8 +8,7 @@ export interface Child {
   age: string;
   gender: 'male' | 'female';
   center: string;
-  nutritionalStatus: 'severe' | 'moderate' | 'mild' | 'healthy';
-  lastCheckup: string;
+  nutritionalStatus: 'severe' | 'moderate' | 'normal';
   vaccinations: number;
 }
 
@@ -22,15 +21,13 @@ const ChildrenTable: React.FC<ChildrenTableProps> = ({ children, onViewDetails }
   const getNutritionalStatusBadge = (status: string) => {
     switch (status) {
       case 'severe':
-        return <span className="status-severe">Severe</span>;
+        return <span className="bg-anganwadi-severe/10 text-anganwadi-severe text-xs px-2 py-1 rounded-full">Severe</span>;
       case 'moderate':
-        return <span className="status-moderate">Moderate</span>;
-      case 'mild':
-        return <span className="status-mild">Mild</span>;
-      case 'healthy':
-        return <span className="status-healthy">Healthy</span>;
+        return <span className="bg-anganwadi-moderate/10 text-anganwadi-moderate text-xs px-2 py-1 rounded-full">Moderate</span>;
+      case 'normal':
+        return <span className="bg-anganwadi-healthy/10 text-anganwadi-healthy text-xs px-2 py-1 rounded-full">Normal</span>;
       default:
-        return null;
+        return <span className="bg-anganwadi-healthy/10 text-anganwadi-healthy text-xs px-2 py-1 rounded-full">Normal</span>;
     }
   };
 
@@ -44,9 +41,7 @@ const ChildrenTable: React.FC<ChildrenTableProps> = ({ children, onViewDetails }
               <th className="px-4 py-3 font-medium">Age/Gender</th>
               <th className="px-4 py-3 font-medium">Center</th>
               <th className="px-4 py-3 font-medium">Nutritional Status</th>
-              <th className="px-4 py-3 font-medium">Last Checkup</th>
               <th className="px-4 py-3 font-medium">Vaccinations</th>
-              <th className="px-4 py-3 font-medium sr-only">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -64,12 +59,6 @@ const ChildrenTable: React.FC<ChildrenTableProps> = ({ children, onViewDetails }
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">{child.center}</td>
                 <td className="px-4 py-3">{getNutritionalStatusBadge(child.nutritionalStatus)}</td>
-                <td className="px-4 py-3 text-muted-foreground">
-                  <div className="flex items-center">
-                    <Calendar size={14} className="mr-1 text-muted-foreground" />
-                    {child.lastCheckup}
-                  </div>
-                </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center">
                     <div className="w-20 bg-muted rounded-full h-2 mr-2">
@@ -80,14 +69,6 @@ const ChildrenTable: React.FC<ChildrenTableProps> = ({ children, onViewDetails }
                     </div>
                     <span className="text-xs text-muted-foreground">{child.vaccinations}/10</span>
                   </div>
-                </td>
-                <td className="px-4 py-3">
-                  <button 
-                    onClick={() => onViewDetails?.(child)}
-                    className="p-1 hover:bg-muted rounded-md transition-colors"
-                  >
-                    <Info size={16} className="text-primary" />
-                  </button>
                 </td>
               </tr>
             ))}
