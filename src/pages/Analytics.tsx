@@ -13,12 +13,22 @@ import { PerformanceComparisonChart } from "@/components/analytics/PerformanceCo
 import { ForecastWidget } from "@/components/analytics/ForecastWidget";
 import WidgetContainer from "@/components/analytics/WidgetContainer";
 import { DateRangePicker } from "@/components/analytics/DateRangePicker";
+import { DateRange } from "react-day-picker";
 
 const Analytics = () => {
-  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
+  const [dateRange, setDateRange] = useState<DateRange>({
     from: new Date(new Date().setMonth(new Date().getMonth() - 3)),
     to: new Date(),
   });
+
+  const handleDateRangeChange = (range: DateRange) => {
+    // Ensure we always have a valid date range with both from and to values
+    const newRange: DateRange = {
+      from: range.from || dateRange.from,
+      to: range.to || dateRange.to
+    };
+    setDateRange(newRange);
+  };
 
   const handleExport = (format: string) => {
     console.log(`Exporting data in ${format} format`);
@@ -77,7 +87,7 @@ const Analytics = () => {
             
             <DateRangePicker
               dateRange={dateRange}
-              onDateRangeChange={setDateRange}
+              onDateRangeChange={handleDateRangeChange}
             />
           </div>
           

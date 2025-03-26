@@ -10,7 +10,8 @@ import {
   Legend, 
   ResponsiveContainer,
   ReferenceLine,
-  ReferenceArea
+  ReferenceArea,
+  Label
 } from "recharts";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -150,10 +151,13 @@ export const ForecastWidget: React.FC<ForecastWidgetProps> = ({
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip 
                   labelFormatter={(label) => `Date: ${label}`}
-                  formatter={(value, name) => [value !== null ? value.toFixed(1) : "N/A", name]}
+                  formatter={(value, name) => {
+                    // Check if value is a number before calling toFixed
+                    return [value !== null && typeof value === 'number' ? value.toFixed(1) : 'N/A', name];
+                  }}
                 />
                 <Legend />
-                <ReferenceLine y={criticalThreshold} stroke="red" strokeDasharray="3 3" >
+                <ReferenceLine y={criticalThreshold} stroke="red" strokeDasharray="3 3">
                   <Label value="Critical Level" position="insideBottomRight" />
                 </ReferenceLine>
                 <Line 
