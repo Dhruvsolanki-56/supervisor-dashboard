@@ -78,10 +78,6 @@ const Children = () => {
         title="Children Registry" 
         subtitle="Track and manage children's health and nutrition"
       >
-        <button className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm font-medium flex items-center hover:bg-primary/90 transition-colors">
-          <PlusCircle size={16} className="mr-2" />
-          Register Child
-        </button>
       </PageTitle>
       
       <div className="mb-6 flex flex-col sm:flex-row gap-4">

@@ -30,39 +30,23 @@ const Index = () => {
   return (
     <Layout>
       <PageTitle title="Dashboard" subtitle="Overview of key metrics and insights">
-        <Button>
-          <PlusIcon className="mr-2 h-4 w-4" />
-          Add Task
-        </Button>
       </PageTitle>
 
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
         <DashboardCard title="Total Children" subtitle="As of today">
           <div className="text-3xl font-bold">1,250</div>
-          <p className="text-sm text-muted-foreground mt-2">
-            <span className="text-green-500">+12%</span> from last month
-          </p>
         </DashboardCard>
 
         <DashboardCard title="Severely Malnourished" subtitle="Children needing immediate attention">
           <div className="text-3xl font-bold text-anganwadi-severe">150</div>
-          <p className="text-sm text-muted-foreground mt-2">
-            <span className="text-red-500">-5%</span> from last month
-          </p>
         </DashboardCard>
 
         <DashboardCard title="Moderate Cases" subtitle="Children requiring close monitoring">
           <div className="text-3xl font-bold text-anganwadi-moderate">320</div>
-          <p className="text-sm text-muted-foreground mt-2">
-            <span className="text-yellow-500">+3%</span> from last month
-          </p>
         </DashboardCard>
 
         <DashboardCard title="Healthy Children" subtitle="Children with normal nutrition levels">
           <div className="text-3xl font-bold text-anganwadi-healthy">780</div>
-          <p className="text-sm text-muted-foreground mt-2">
-            <span className="text-green-500">+8%</span> from last month
-          </p>
         </DashboardCard>
       </div>
 
